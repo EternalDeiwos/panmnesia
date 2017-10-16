@@ -1,0 +1,52 @@
+{
+  "name": "panmnesia",
+  "version": "0.0.0",
+  "description": "An action and selector registry and redux-based aggregate store for a PouchDB-based event stream.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "nyc _mocha",
+    "jsdoc": "jsdoc -c jsdoc.json",
+    "coverage": "nyc --reporter=lcov _mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EternalDeiwos/panmnesia.git"
+  },
+  "keywords": [
+    "event-sourcing",
+    "eventsourcing",
+    "event-source",
+    "eventsource",
+    "event-store",
+    "eventstore",
+    "event-stream",
+    "eventstream",
+    "event",
+    "command",
+    "selector",
+    "cqrs",
+    "redux",
+    "pouchdb",
+    "couchdb",
+    "couchbase",
+    "cloudant"
+  ],
+  "author": "@EternalDeiwos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EternalDeiwos/panmnesia/issues"
+  },
+  "homepage": "https://github.com/EternalDeiwos/panmnesia#readme",
+  "dependencies": {
+    "pouchdb": "^6.3.4",
+    "redux": "^3.7.2",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "codecov": "^2.3.1",
+    "jsdoc": "^3.5.5",
+    "mocha": "^4.0.1",
+    "nyc": "^11.2.1"
+  }
+}
