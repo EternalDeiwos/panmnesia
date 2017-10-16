@@ -7,11 +7,10 @@
 const { createStore } = require('redux')
 
 /**
- * Constants
+ * Module Dependencies
  * @ignore
  */
-const ACTION_REGISTRY_TYPE = 'ACTION'
-const SELECTOR_REGISTRY_TYPE = 'SELECTOR'
+const id = require('./Identifier')
 
 /**
  * @typedef {Object} State
@@ -60,79 +59,163 @@ class Registry {
     Object.defineProperty(this, 'state', { value: state })
 
     // Create non-configurable registry
-    Object.defineProperty(this, 'registry', { value: {}, enumerable: true })
-  }
-
-  /**
-   * @static
-   * @constant
-   * @type RegistryType
-   */
-  static get ACTION_REGISTRY_TYPE () {
-    return ACTION_REGISTRY_TYPE
-  }
-
-  /**
-   * @static
-   * @constant
-   * @type RegistryType
-   */
-  static get SELECTOR_REGISTRY_TYPE () {
-    return SELECTOR_REGISTRY_TYPE
+    Object.defineProperty(this, 'registry', { value: {
+      HYDRATE_STATE: (state, action) => action.payload
+    }, enumerable: true })
   }
 
   /**
    * createStore
    *
    * @description
-   * Initialize the redux store.
+   * Initialize the redux store
    *
    * @param  {Function} enhancer - Redux enhancer to be injected.
-   * @return {Promise.<Store>} The promise that resolves the redux store containing the aggregate state of the event stream.
+   * @return {Store} The promise that resolves the redux store containing the aggregate state of the event stream.
    */
   createStore (enhancer) {
     if (!this.store) {
       // Create non-configurable redux store
       Object.defineProperty(this, 'store', {
-        value: createStore((state, action) => this.reduce(state, action), {}, enhancer),
-        enumerable: true
+        value: createStore((state = {}, action) => this.reduce(state, action), {}, enhancer)
+      })
+
+      if (this.state) {
+        this.state.get('state', { latest: true })
+          .catch(() => null)
+          .then(latest => {
+            if (latest !== null) {
+              this.rev = latest._rev
+              this.store.dispatch({ type: 'HYDRATE_STATE', payload: latest })
+            }
+
+            this.createChangeFeed(latest ? latest.seq : 0)
+          })
+      } else {
+        this.createChangeFeed(0)
+      }
+
+      this.store.subscribe(() => {
+        const state = this.store.getState()
+        console.log(state)
+        return this.state.put({ ...state, _id: 'state', _rev: this.rev })
+          .catch(() => {})
       })
     }
 
-    return Promise.resolve(this.store)
+    return this.store
+  }
+
+  /**
+   * createChangeFeed
+   * @ignore
+   *
+   * @description
+   * Start the PouchDB change feed
+   *
+   * @param  {Number} since - Starting sequence number
+   * @return {Changes} {@link https://pouchdb.com/api.html#changes|PouchDB Change Feed}
+   */
+  createChangeFeed (since) {
+    const { source, store } = this
+
+    // Create feed
+    const feed = source.changes({
+      live: true,
+      include_docs: true,
+      since
+    })
+
+    Object.defineProperty(this, 'feed', { value: feed, configurable: true })
+
+    // Handle change
+    feed.on('change', change => store.dispatch({ type: 'EVENT', change }))
+
+    // Handle error
+    // TODO Fail gracefully
+    feed.on('error', error => {
+      console.error('EVENT FEED ERROR', error)
+      process.exit(1)
+    })
+
+    return feed
+  }
+
+  /**
+   * @description
+   * Get the redux store
+   *
+   * @return {ReduxStore}
+   */
+  getStore () {
+    return this.store || null
   }
 
   /**
    * reduce
+   * @ignore
    *
    * @description
    * The reducer of the actions registered on the registry.
    *
-   * @internal For internal use with the redux store only.
-   *
    * @param  {State} state
-   * @param  {FluxEvent} action
+   * @param  {action} action
    * @return {State} New state
    */
   reduce (state, action) {
-    // TODO
+    const { seq, doc } = change
+
+    if (!seq || !doc) {
+      return state
+    }
+
+    const { type } = doc
+    const reducer = this.registry[type]
+
+    if (!reducer) {
+      return state
+    }
+
+    return Object.assign(reducer(state, doc), { seq })
   }
 
   /**
    * register
    *
    * @description
-   * Register an Entry on the registry.
+   * Register a reducer on the registry.
    *
-   * @param  {Class} Entry - An {@link ExtendedAction} or {@link ExtendedSelector} class.
+   * @param  {String} event
+   * @param  {Function} reducer
    */
-  register (Entry) {
-    if (!Entry) {
-      throw new Error('Registry Entry required')
+  register (event, reducer) {
+    if (!event || !reducer) {
+      throw new Error('Invalid arguments')
     }
 
-    const { type } = Entry
-    this.registry[type] = new Entry(this)
+    this.registry[event] = reducer
+  }
+
+  /**
+   * emit
+   *
+   * @description
+   * Write an event to the event stream.
+   *
+   * @param  {Object} event
+   * @param  {String} event.type
+   * @param  {Object} [event.payload]
+   * @param  {Boolean} [event.error]
+   * @param  {Object} [event.meta]
+   */
+  emit (event) {
+    if (!event || !event.type) {
+      throw new Error('Event type is required')
+    }
+
+    const { type, payload, error, meta } = event
+    const { source } = this
+    source.put({ type, payload, error, meta, _id: id() })
   }
 }
 
