@@ -27,10 +27,12 @@ class Registry {
   constructor (options) {
     const { source, state } = options
 
-    this.actions = {}
-    this.selectors = {}
+    // Set databases from options
     Object.defineProperty(this, 'source', { value: source })
     Object.defineProperty(this, 'state', { value: state })
+
+    // Create non-configurable registry
+    Object.defineProperty(this, 'registry', { value: {}, enumerable: true })
   }
 
   /**
@@ -40,17 +42,18 @@ class Registry {
    * Initialize the redux store.
    *
    * @param  {Function} enhancer - Redux enhancer to be injected.
-   * @return {Store} The redux store containing the aggregate state of the event stream.
+   * @return {Promise.<Store>} The promise that resolves the redux store containing the aggregate state of the event stream.
    */
   createStore (enhancer) {
     if (!this.store) {
+      // Create non-configurable redux store
       Object.defineProperty(this, 'store', {
         value: createStore((state, action) => this.reduce(state, action), {}, enhancer),
         enumerable: true
       })
     }
 
-    return this.store
+    return Promise.resolve(this.store)
   }
 
   /**
@@ -73,17 +76,17 @@ class Registry {
    * register
    *
    * @description
-   * Register an action or selector on the registry.
+   * Register an Entry on the registry.
    *
-   * @param  {Class} actionSelector - An Action or Selector child-class.
-   * @return {(Action|Selector)} An instance of the Action or Selector child-class.
+   * @param  {Class} Entry - An {@link ExtendedAction} or {@link ExtendedSelector} class.
    */
-  register (actionSelector) {
-    if (!actionSelector) {
-      throw new Error('Action or Selector required')
+  register (Entry) {
+    if (!Entry) {
+      throw new Error('Registry Entry required')
     }
 
-    // TODO
+    const { type } = Entry
+    this.registry[type] = new Entry(this)
   }
 }
 
