@@ -6,10 +6,39 @@
  */
 
 /**
- * Action
+ * Module Dependencies
  * @ignore
  */
-class Action {
+const Entry = require('./Entry')
+const Registry = require('./Registry')
+
+/**
+ * Constants
+ * @ignore
+ */
+const ACTION_REGISTRY_TYPE = "ACTION"
+
+/**
+ * Action
+ *
+ * @class Action
+ * @classdesc
+ * An abstract Action event handler.
+ *
+ * @hideconstructor
+ *
+ * @extends {Entry}
+ */
+class Action extends Entry {
+
+  /**
+   * @static
+   * @constant
+   * @return {RegistryType}
+   */
+  static get registryType () {
+    return Registry.ACTION_REGISTRY_TYPE
+  }
 }
 
 /**
