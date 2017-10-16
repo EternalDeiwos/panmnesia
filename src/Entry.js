@@ -18,6 +18,20 @@ class Entry {
   constructor (registry) {
     this.registry = registry
   }
+
+  /**
+   * @static
+   * @constant
+   * @abstract
+   *
+   * @description
+   * Registry identifier
+   *
+   * @return {String}
+   */
+  static get type () {
+    throw new Error('Abstract method must be overriden')
+  }
 }
 
 /**
