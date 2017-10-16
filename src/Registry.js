@@ -7,18 +7,46 @@
 const { createStore } = require('redux')
 
 /**
+ * Constants
+ * @ignore
+ */
+const ACTION_REGISTRY_TYPE = 'ACTION'
+const SELECTOR_REGISTRY_TYPE = 'SELECTOR'
+
+/**
+ * @typedef {Object} State
+ *
+ * @description
+ * An immutable Redux state object.
+ */
+
+/**
+ * @typedef {Object} FluxEvent
+ *
+ * @description
+ * An event object conforming to the Flux Event standard.
+ */
+
+/**
+ * @typedef {String} RegistryType
+ *
+ * @description
+ * A constant denoting the type of {@link Entry}.
+ */
+
+/**
  * Registry
  * @ignore
  */
 class Registry {
 
   /**
-   * constructor
-   *
    * @class Registry
    *
-   * @description
+   * @classdesc
    * A registry of actions and selectors.
+   *
+   * @constructor
    *
    * @param  {Object} options
    * @param  {PouchDB} options.source - PouchDB instance of the event database.
@@ -33,6 +61,24 @@ class Registry {
 
     // Create non-configurable registry
     Object.defineProperty(this, 'registry', { value: {}, enumerable: true })
+  }
+
+  /**
+   * @static
+   * @constant
+   * @type RegistryType
+   */
+  static get ACTION_REGISTRY_TYPE () {
+    return ACTION_REGISTRY_TYPE
+  }
+
+  /**
+   * @static
+   * @constant
+   * @type RegistryType
+   */
+  static get SELECTOR_REGISTRY_TYPE () {
+    return SELECTOR_REGISTRY_TYPE
   }
 
   /**
@@ -64,9 +110,9 @@ class Registry {
    *
    * @internal For internal use with the redux store only.
    *
-   * @param  {Object} state - Current state
-   * @param  {Object} action - Flux event object
-   * @return {Object} New state
+   * @param  {State} state
+   * @param  {FluxEvent} action
+   * @return {State} New state
    */
   reduce (state, action) {
     // TODO
