@@ -4,6 +4,7 @@
  * Dependencies
  * @ignore
  */
+const util = require('util')
 const { createStore } = require('redux')
 
 /**
@@ -66,6 +67,18 @@ class Registry {
   }
 
   /**
+   * inspect
+   * @ignore
+   *
+   * @description
+   * Debug console output for registry.
+   */
+  [util.inspect.custom](depth, options) {
+    const events = Object.keys(this.registry).join(', ')
+    return `Registry { ${events} }`
+  }
+
+  /**
    * createStore
    *
    * @description
@@ -88,8 +101,6 @@ class Registry {
             const { _rev, state, seq } = latest
             this.rev = _rev
             this.seq = seq
-
-            console.log('LATEST', latest)
 
             store.dispatch({ type: 'HYDRATE_STATE', payload: state })
             this.createChangeFeed(latest && latest.seq ? latest.seq : 0)
