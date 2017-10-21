@@ -6,6 +6,7 @@
   "scripts": {
     "test": "nyc _mocha",
     "jsdoc": "jsdoc -c jsdoc.json",
+    "private-jsdoc": "jsdoc -c jsdoc.json -p",
     "coverage": "nyc --reporter=lcov _mocha test"
   },
   "repository": {
