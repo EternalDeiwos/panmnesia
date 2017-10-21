@@ -9,6 +9,8 @@ const { Registry } = require('./src')
 
 /**
  * Registry
+ *
+ * Note: you must create an empty folder called "data" or this will throw
  */
 const registry = new Registry({
   source: new PouchDB('data/events'),
