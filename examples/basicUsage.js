@@ -11,8 +11,8 @@ const { Registry } = require('./src')
  * Registry
  */
 const registry = new Registry({
-  source: new PouchDB('events'),
-  state: new PouchDB('state')
+  source: new PouchDB('data/events'),
+  state: new PouchDB('data/state')
 })
 
 /**
