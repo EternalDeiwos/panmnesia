@@ -116,7 +116,7 @@ class Registry {
 
   /**
    * createChangeFeed
-   * @ignore
+   * @private
    *
    * @description
    * Start the PouchDB change feed
@@ -174,13 +174,13 @@ class Registry {
 
   /**
    * cacheState
-   * @ignore
+   * @private
    *
    * @description
    * Cache the supplied state as the current latest.
    *
    * @param  {Object} state
-   * @void
+   * @return {Promise} Resolves when the updated state is committed to the cache
    */
   cacheState (state) {
     const { state: cache, cache: flag, rev, seq } = this
@@ -207,7 +207,7 @@ class Registry {
 
   /**
    * reduce
-   * @ignore
+   * @private
    *
    * @description
    * The reducer that is passed to the Redux store.
@@ -246,7 +246,7 @@ class Registry {
 
   /**
    * reduceEvent
-   * @ignore
+   * @private
    *
    * @description
    * The reducer of the actions registered on the registry.
@@ -303,12 +303,12 @@ class Registry {
    * @description
    * Write an event to the event stream.
    *
-   * @param  {Object} event
+   * @param  {FluxEvent} event
    * @param  {String} event.type
    * @param  {Object} [event.payload]
    * @param  {Boolean} [event.error]
    * @param  {Object} [event.meta]
-   * @void
+   * @return {Promise} Resolves when event is committed to the database.
    */
   emit (event) {
     if (!event || !event.type) {
