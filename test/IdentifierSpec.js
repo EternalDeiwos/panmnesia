@@ -5,7 +5,6 @@
  * @ignore
  */
 const chai = require('chai')
-const uuid = require('uuid/v1')
 
 /**
  * Assertions
