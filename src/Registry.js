@@ -97,7 +97,6 @@ class Registry {
 
       this.store.subscribe(() => {
         const state = this.store.getState()
-        console.log(state)
         return this.state.put({ ...state, _id: 'state', _rev: this.rev })
           .catch(() => {})
       })
@@ -159,11 +158,15 @@ class Registry {
    * The reducer of the actions registered on the registry.
    *
    * @param  {State} state
-   * @param  {action} action
+   * @param  {Object} action
    * @return {State} New state
    */
   reduce (state, action) {
-    const { seq, doc } = change
+    if (action.type !== 'EVENT') {
+      return state
+    }
+
+    const { change: { doc, seq } } = action
 
     if (!seq || !doc) {
       return state
@@ -215,7 +218,7 @@ class Registry {
 
     const { type, payload, error, meta } = event
     const { source } = this
-    source.put({ type, payload, error, meta, _id: id() })
+    return source.put({ type, payload, error, meta, _id: id() })
   }
 }
 
