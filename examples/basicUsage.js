@@ -5,7 +5,7 @@
  * @ignore
  */
 const PouchDB = require('pouchdb')
-const { Registry } = require('./src')
+const { Registry } = require('../src')
 
 /**
  * Registry
@@ -13,8 +13,8 @@ const { Registry } = require('./src')
  * Note: you must create an empty folder called "data" or this will throw
  */
 const registry = new Registry({
-  source: new PouchDB('data/events'),
-  state: new PouchDB('data/state')
+  source: new PouchDB('data/events_basic'),
+  state: new PouchDB('data/state_basic')
 })
 
 /**
