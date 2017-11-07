@@ -1,6 +1,6 @@
 {
   "name": "panmnesia",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An action registry and redux-based aggregate store for a PouchDB-based event stream.",
   "main": "src/index.js",
   "scripts": {
