@@ -193,7 +193,7 @@ class Registry {
       .catch(error => {
         const { status } = error
 
-        if (status === 404) {
+        if (status === 409) {
           return cache.get('state').then(({ _rev }) => {
             this.rev = _rev
             return this.cacheState(state)
