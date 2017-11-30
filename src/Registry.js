@@ -190,10 +190,11 @@ class Registry {
     }
 
     return cache.put({ state, _id: 'state', _rev: rev, seq })
+      .then(({ rev }) => this.rev = rev)
       .catch(error => {
         const { status } = error
 
-        if (status === 404) {
+        if (status === 409) {
           return cache.get('state').then(({ _rev }) => {
             this.rev = _rev
             return this.cacheState(state)
@@ -202,7 +203,6 @@ class Registry {
 
         return Promise.reject(error)
       })
-      .then(({ rev }) => this.rev = rev)
   }
 
   /**
