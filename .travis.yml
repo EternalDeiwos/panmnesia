@@ -4,7 +4,9 @@ language: node_js
 
 node_js: "8.6.0"
 
-before_install: npm i -g npm
+before_install:
+  - npm i -g npm
+  - mkdir testdb
 
 install: npm i
 
